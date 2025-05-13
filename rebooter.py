@@ -4,7 +4,6 @@ import subprocess
 import configparser
 import os
 from datetime import datetime
-import psutil
 
 CONFIG_PATH = "config.ini"
 
@@ -58,18 +57,15 @@ def perform_reboot_action(should_reboot):
 
 # === Kill Process ===
 def kill_process_by_name(name):
-    found = False
-    for proc in psutil.process_iter(['pid', 'name']):
-        if proc.info['name'] and proc.info['name'].lower() == name.lower():
-            try:
-                proc.kill()
-                log_event(f"[!] Terminated process: {proc.info['name']} (PID {proc.info['pid']})")
-                found = True
-            except Exception as e:
-                log_event(f"[!] Failed to kill {name}: {e}")
-    if not found:
-        log_event(f"[!] Process '{name}' not found.")
-
+    try:
+        powershell_command = f"""
+        Get-Process | Where-Object {{ $_.Path -like '*{name}' }} | ForEach-Object {{ Stop-Process -Id $_.Id -Force }}
+        """
+        subprocess.run(["powershell", "-Command", powershell_command], check=True)
+        log_event(f"[!] Terminated processes with file name matching: {name}")
+    except subprocess.CalledProcessError as e:
+        log_event(f"[!] Failed to kill '{name}': {e}")
+        
 # === MAIN ===
 if __name__ == "__main__":
     try:
