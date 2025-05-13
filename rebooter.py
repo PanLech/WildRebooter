@@ -18,10 +18,10 @@ def load_config(path):
         url = config.get("Settings", "google_doc_url")
         interval = config.getint("Settings", "check_interval_seconds")
         reboot_trigger = config.get("Settings", "trigger_text_reboot")
-        stop_trigger = config.get("Settings", "trigger_text_stop")
+        kill_trigger = config.get("Settings", "trigger_text_kill")
         process_name = config.get("Settings", "process_to_kill")
         perform_reboot = config.getboolean("Settings", "perform_reboot", fallback=False)
-        return url, interval, reboot_trigger, stop_trigger, process_name, perform_reboot
+        return url, interval, reboot_trigger, kill_trigger, process_name, perform_reboot
     except Exception as e:
         raise ValueError(f"Invalid config format: {e}")
 
@@ -73,7 +73,7 @@ def kill_process_by_name(name):
 # === MAIN ===
 if __name__ == "__main__":
     try:
-        url, interval, reboot_trigger, stop_trigger, proc_to_kill, should_reboot = load_config(CONFIG_PATH)
+        url, interval, reboot_trigger, kill_trigger, proc_to_kill, should_reboot = load_config(CONFIG_PATH)
         log_event("Configuration loaded.")
         log_event(f"Monitoring: {url}")
     except Exception as e:
@@ -86,8 +86,8 @@ if __name__ == "__main__":
     if reboot_trigger in initial_text:
         log_event(f"[!] '{reboot_trigger}' already present at launch. No reboot performed.")
         exit(0)
-    elif stop_trigger in initial_text:
-        log_event(f"[!] '{stop_trigger}' already present at launch. Killing '{proc_to_kill}' once.")
+    elif kill_trigger in initial_text:
+        log_event(f"[!] '{kill_trigger}' already present at launch. Killing '{proc_to_kill}' once.")
         kill_process_by_name(proc_to_kill)
         exit(0)
 
@@ -101,8 +101,8 @@ if __name__ == "__main__":
             perform_reboot_action(should_reboot)
             break
 
-        if stop_trigger in text:
-            log_event(f"[!] Detected stop trigger: '{stop_trigger}'")
+        if kill_trigger in text:
+            log_event(f"[!] Detected kill trigger: '{kill_trigger}'")
             kill_process_by_name(proc_to_kill)
             # Do not exit — keep monitoring in case process is restarted
 
