@@ -1,7 +1,7 @@
 
 # 🔁 Wild Remote-Controlled Reboot and Process Killer (via Google Doc)
 
-This Python script monitors a **publicly shared Google Document** for specific trigger words. Based on those triggers, it can:
+This Python script monitors a **publicly shared private Google Document** for specific trigger words. Based on those triggers, it can:
 
 - 🔄 **Reboot your Windows PC**
 - ❌ **Terminate a specific process**
@@ -40,7 +40,7 @@ It's ideal for controlled remote intervention without needing direct access to t
 ### 3. Install required libraries.
 
 ```bash
-pip install psutil requests
+pip install requests
 ```
 
 ---
@@ -49,7 +49,9 @@ pip install psutil requests
 
 Create an empty Google Doc and share it with the following setting: `Anyone on the internet with the link can view`. This way you are the only one that can edit the file, but the script is able to freely read it. 
 
-Create or edit the `config.ini` file:
+Alternatively, use a file on your own server. The script simply queries file contents looking for triggers.
+
+Edit the `config.ini` file. Remember to set `perform_reboot` to `true` to allow the script to reboot the computer.
 
 ```ini
 [Settings]
@@ -71,7 +73,6 @@ perform_reboot = false
 | `trigger_text_kill`   | Text that triggers process termination (`KILL`)  |
 | `process_to_kill`     | Name of the process to terminate (e.g., `rider64.exe`) |
 | `perform_reboot`      | If `true`, will reboot; if `false`, logs only        |
-
 ---
 
 ## 🚀 Usage
@@ -82,6 +83,8 @@ Run the script manually:
 python rebooter.py
 ```
 Then keep using the computer. When the computer stops responding, use another machine to add `KILL` to the Google Doc, which will cause the script to kill the configured process (for example `rider64.exe`). If computer is still not responding, add `REBOOT` to the Google Doc for a forceful reboot. Clear the Google Doc after script catches the trigger word.
+
+Alternatively use Task Scheduler to automate running the script when computer starts. 
 
 ---
 
